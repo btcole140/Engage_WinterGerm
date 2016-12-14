@@ -1,4 +1,7 @@
 setwd("/Users/karensamis/Google Drive/NSERC Engage/Methods and Data/Germination Data/New Experiment Nov_16/Engage_WinterGerm")
+#lab computer
+setwd("/Users/mac/Google Drive/NSERC Engage/Methods and Data/Germination Data/New Experiment Nov_16/Engage_WinterGerm")
+#home computer
 
 EngWG <- read.csv("Engage2016_WinterGermExp.csv")
 View(EngWG)
@@ -16,6 +19,8 @@ EngWG$Ex <- as.factor(EngWG$Ex)
 EngWG$C <- as.factor(EngWG$C)
 EngWG$Survival <- as.factor(EngWG$Survival)
 
+EngWG$D2Emerg <- as.numeric(EngWG$D2Emerg)
+
 EngWG$Date.Sowed <- as.Date(EngWG$Date.Sowed, "%d-%b-%y")
 EngWG$DateEmerg <- as.Date(EngWG$DateEmerg, "%d-%b-%y")
 
@@ -23,8 +28,11 @@ write.table(EngWG, file = "Engage2016_WinterGermExp_set.csv", sep = ",", col.nam
 
 #Subset data
 EngWG1 <- subset(EngWG, Rep == "1")
+EngWG1x <- subset(EngWG1, Survival == "1")
 EngWG2 <- subset(EngWG, Rep == "2")
 
+EngWG1 <- droplevels(EngWG1)
+EngWG2 <- droplevels(EngWG2)
 
 write.table(EngWG1, file = "Engage2016_WinterGermExp1_set.csv", sep = ",", col.names = TRUE, row.names = FALSE)
 write.table(EngWG2, file = "Engage2016_WinterGermExp2_set.csv", sep = ",", col.names = TRUE, row.names = FALSE)
@@ -81,13 +89,84 @@ View(means)
 
 #**************************Rep 1 only************************************
 ##histograms and transformations
-hist(EngWG1$B_WetWt) #skew right
-EngWG1$LogB_WetWt <- log10(EngWG1$B_WetWt+1)
-hist(EngWG1$LogB_WetWt) #good shape and centered
-EngWG1$sqrtB_WetWt <- sqrt(EngWG1$B_WetWt+0.5)
-hist(EngWG1$sqrtB_WetWt) #bit better shape than log **
-EngWG1$rankB_WetWt <- rank(EngWG1$B_WetWt)
+hist(EngWG1x$D2Emerg) #skew left
+EngWG1x$LogD2Emerg <- log10(EngWG1x$D2Emerg+1)
+hist(EngWG1x$LogD2Emerg) #centered, but many gaps
+EngWG1x$sqrtD2Emerg <- sqrt(EngWG1x$D2Emerg+0.5)
+hist(EngWG1x$sqrtD2Emerg) #bit better shape than log  but still gaps
+EngWG1x$rankD2Emerg <- rank(EngWG1x$D2Emerg) #*
 
-boxplot(sqrtB_WetWt~Trtmt, data=EngWG1)
-boxplot(WetWt~Trtmt, data=EngWG1)
-boxplot(A_WetWt~Trtmt, data=EngWG1)
+hist(EngWG1x$WetWt) #skew left
+EngWG1x$LogWetWt <- log10(EngWG1x$WetWt+1)
+hist(EngWG1x$LogWetWt) #more centered, but off shape
+EngWG1x$sqrtWetWt<- sqrt(EngWG1x$WetWt+0.5)
+hist(EngWG1x$sqrtWetWt) #bit better shape than log, but still not great
+EngWG1x$rankWetWt <- rank(EngWG1x$WetWt) #*
+
+hist(EngWG1x$A_WetWt) #skew left
+EngWG1x$LogA_WetWt <- log10(EngWG1x$A_WetWt+1)
+hist(EngWG1x$LogA_WetWt) #good shape and centered
+EngWG1x$sqrtA_WetWt <- sqrt(EngWG1x$A_WetWt+0.5)
+hist(EngWG1x$sqrtA_WetWt) #bit better shape than log but skewed left again *
+EngWG1x$rankA_WetWt <- rank(EngWG1x$A_WetWt)
+
+hist(EngWG1x$B_WetWt) #skew left
+EngWG1x$LogB_WetWt <- log10(EngWG1x$B_WetWt+1)
+hist(EngWG1x$LogB_WetWt) #good shape and centered
+EngWG1x$sqrtB_WetWt <- sqrt(EngWG1x$B_WetWt+0.5)
+hist(EngWG1x$sqrtB_WetWt) #bit better shape than log *
+EngWG1x$rankB_WetWt <- rank(EngWG1x$B_WetWt)
+
+boxplot(rankD2Emerg~Trtmt, data=EngWG1x) #likely diff between 100% and rest
+boxplot(rankWetWt~Trtmt, data=EngWG1x) #likely diff between 100% and rest
+boxplot(sqrtA_WetWt~Trtmt, data=EngWG1x) #likely diff between 100% and rest
+boxplot(sqrtB_WetWt~Trtmt, data=EngWG1x) #may not see differences
+
+
+#*******************************
+#D2Emerg
+SumEngD2E<- summarySE(EngWG1x, measurevar="rankD2Emerg", groupvars=c("Sp", "Trtmt")) 
+GGEngD2E <- ggplot(data=SumEngD2E, aes(x=Trtmt, y=rankD2Emerg, group=Sp, shape=Sp)) +
+  geom_errorbar(aes(ymin=rankD2Emerg-se, ymax=rankD2Emerg+se), width=0.1) + #set error bars
+  geom_line() + geom_point(size=3)+ #can change size of data points
+  xlab("Treatment (%)") + ylab("Ranked Days to Emerge") +
+  scale_shape(name="Species") + ggtitle("WGerm1 Days 2 Emerg\nbetween Treatments") + #name=sets the legend titel
+  theme_bw() + theme(legend.justification=c(1,0), legend.position=c(1,0.75))+ #legend.position is set to top right
+  theme(axis.title.x = element_text(face="bold", size=20), # can also add colour with "colour="#x"" where x is colour number
+        axis.text.x  = element_text(vjust=0.5, size=16))+ #vjust repositions the x axis text, can change angle of text with "angle=90"
+  theme(axis.title.y = element_text(face="bold", size=20),
+        axis.text.y  = element_text(size=16))
+
+
+
+
+#*******************************
+#WetWt
+SumEngWWt<- summarySE(EngWG1x, measurevar="rankWetWt", groupvars=c("Sp", "Trtmt")) 
+GGEngWWt <- ggplot(data=SumEngWWt, aes(x=Trtmt, y=rankWetWt, group=Sp, shape=Sp)) +
+  geom_errorbar(aes(ymin=rankWetWt-se, ymax=rankWetWt+se), width=0.1) + #set error bars
+  geom_line() + geom_point(size=3)+ #can change size of data points
+  xlab("Treatment (%)") + ylab("Ranked Harvest Weight (mg)") +
+  scale_shape(name="Species") + ggtitle("WGerm1 Harvest Weight\nbetween Treatments") + #name=sets the legend titel
+  theme_bw() + theme(legend.justification=c(1,0), legend.position=c(1,0.75))+ #legend.position is set to top right
+  theme(axis.title.x = element_text(face="bold", size=20), # can also add colour with "colour="#x"" where x is colour number
+        axis.text.x  = element_text(vjust=0.5, size=16))+ #vjust repositions the x axis text, can change angle of text with "angle=90"
+  theme(axis.title.y = element_text(face="bold", size=20),
+        axis.text.y  = element_text(size=16))
+
+
+
+#*******************************
+#A_WetWt
+SumEngWWt<- summarySE(EngWG1x, measurevar="sqrtA_WetWt", groupvars=c("Sp", "Trtmt")) 
+GGEngWWt <- ggplot(data=SumEngWWt, aes(x=Trtmt, y=sqrtA_WetWt, group=Sp, shape=Sp)) +
+  geom_errorbar(aes(ymin=sqrtA_WetWt-se, ymax=sqrtA_WetWt+se), width=0.1) + #set error bars
+  geom_line() + geom_point(size=3)+ #can change size of data points
+  xlab("Treatment (%)") + ylab(expression(sqrt(Above~Ground~Harvest~Weight(mg)))) +
+  scale_shape(name="Species") + ggtitle("WGerm1 AboveG Harvest Weight\nbetween Treatments") + #name=sets the legend titel
+  theme_bw() + theme(legend.justification=c(1,0), legend.position=c(1,0.75))+ #legend.position is set to top right
+  theme(axis.title.x = element_text(face="bold", size=20), # can also add colour with "colour="#x"" where x is colour number
+        axis.text.x  = element_text(vjust=0.5, size=16))+ #vjust repositions the x axis text, can change angle of text with "angle=90"
+  theme(axis.title.y = element_text(face="bold", size=20),
+        axis.text.y  = element_text(size=16))
+

@@ -191,3 +191,23 @@ GGEngBWt <- ggplot(data=SumEngBWt, aes(x=Trtmt, y=sqrtB_WetWt, group=Sp, shape=S
 
   #unlikely to see any variation between trtmts with either species... all standard errors
     #overlap
+
+
+#************************************************************************
+#Chisq <- testing for similarities in survival between trtmt levels within species 
+#**********************
+tablesurv <- table(EngWG1$Survival, EngWG1$Sp:EngWG1$Trtmt)
+chisq.test(table(EngWG1$Survival, EngWG1$Sp:EngWG1$Trtmt))
+    #chisq=132.55, p =<0.0001
+
+survdat <- data.frame(EngWG1$Trtmt, EngWG1$Sp, EngWG1$Survival)
+
+GGEngSurv <- ggplot(data=tablesurv, aes(x=Trtmt, y=Survival, group=Sp, fill=Sp)) +
+  geom_bar(position="dodge") +
+  xlab("Treatment (%)") + ylab(Count~of~No.~Survived~to~Emerge) +
+  scale_fill_brewer(name="Species") + ggtitle("WGerm1 Survival\nbetween Treatments") + #name=sets the legend titel
+  theme_bw() + theme(legend.justification=c(1,0), legend.position=c(1,0.75))+ #legend.position is set to top right
+  theme(axis.title.x = element_text(face="bold", size=20), # can also add colour with "colour="#x"" where x is colour number
+        axis.text.x  = element_text(vjust=0.5, size=16))+ #vjust repositions the x axis text, can change angle of text with "angle=90"
+  theme(axis.title.y = element_text(face="bold", size=20),
+        axis.text.y  = element_text(size=16))

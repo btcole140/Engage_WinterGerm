@@ -137,7 +137,8 @@ GGEngD2E <- ggplot(data=SumEngD2E, aes(x=Trtmt, y=rankD2Emerg, group=Sp, shape=S
   theme(axis.title.y = element_text(face="bold", size=20),
         axis.text.y  = element_text(size=16))
 
-
+  #interesting spike in lettuce days to emerge at the 100% trtmt level... these plants took
+    #quite a bit longer. All other trtmts don't seem to vary much in basil and lettuce.
 
 
 #*******************************
@@ -154,12 +155,13 @@ GGEngWWt <- ggplot(data=SumEngWWt, aes(x=Trtmt, y=rankWetWt, group=Sp, shape=Sp)
   theme(axis.title.y = element_text(face="bold", size=20),
         axis.text.y  = element_text(size=16))
 
-
+  #Harvest weight in lettuce and basil does not appear to vary between trtmts.
+  
 
 #*******************************
 #A_WetWt
-SumEngWWt<- summarySE(EngWG1x, measurevar="sqrtA_WetWt", groupvars=c("Sp", "Trtmt")) 
-GGEngWWt <- ggplot(data=SumEngWWt, aes(x=Trtmt, y=sqrtA_WetWt, group=Sp, shape=Sp)) +
+SumEngAWt<- summarySE(EngWG1x, measurevar="sqrtA_WetWt", groupvars=c("Sp", "Trtmt")) 
+GGEngAWt <- ggplot(data=SumEngAWt, aes(x=Trtmt, y=sqrtA_WetWt, group=Sp, shape=Sp)) +
   geom_errorbar(aes(ymin=sqrtA_WetWt-se, ymax=sqrtA_WetWt+se), width=0.1) + #set error bars
   geom_line() + geom_point(size=3)+ #can change size of data points
   xlab("Treatment (%)") + ylab(expression(sqrt(Above~Ground~Harvest~Weight(mg)))) +
@@ -170,3 +172,22 @@ GGEngWWt <- ggplot(data=SumEngWWt, aes(x=Trtmt, y=sqrtA_WetWt, group=Sp, shape=S
   theme(axis.title.y = element_text(face="bold", size=20),
         axis.text.y  = element_text(size=16))
 
+  #possible difference in above gound harvest weight of lettuce in trtmt 50% MBE compared to
+    #other trtmts.
+
+#*******************************
+#B_WetWt
+SumEngBWt<- summarySE(EngWG1x, measurevar="sqrtB_WetWt", groupvars=c("Sp", "Trtmt")) 
+GGEngBWt <- ggplot(data=SumEngBWt, aes(x=Trtmt, y=sqrtB_WetWt, group=Sp, shape=Sp)) +
+  geom_errorbar(aes(ymin=sqrtB_WetWt-se, ymax=sqrtB_WetWt+se), width=0.1) + #set error bars
+  geom_line() + geom_point(size=3)+ #can change size of data points
+  xlab("Treatment (%)") + ylab(expression(sqrt(Below~Ground~Harvest~Weight(mg)))) +
+  scale_shape(name="Species") + ggtitle("WGerm1 BelowG Harvest Weight\nbetween Treatments") + #name=sets the legend titel
+  theme_bw() + theme(legend.justification=c(1,0), legend.position=c(1,0.75))+ #legend.position is set to top right
+  theme(axis.title.x = element_text(face="bold", size=20), # can also add colour with "colour="#x"" where x is colour number
+        axis.text.x  = element_text(vjust=0.5, size=16))+ #vjust repositions the x axis text, can change angle of text with "angle=90"
+  theme(axis.title.y = element_text(face="bold", size=20),
+        axis.text.y  = element_text(size=16))
+
+  #unlikely to see any variation between trtmts with either species... all standard errors
+    #overlap
